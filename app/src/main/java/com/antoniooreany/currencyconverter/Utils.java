@@ -36,29 +36,4 @@ public class Utils {
 //        ArrayList<CurrencyElement> data = new ArrayList<>(Arrays.asList(new CurrencyElement(currenciesList)));
         return currencyElementArrayList;
     }
-
-//    private class SharedData {
-//        private double doubleFrom;
-//        private String currencyFrom;
-//        private String currencyTo;
-//        private String stringResult;
-//
-//        double getDoubleFrom() { return doubleFrom; }
-//        String getCurrencyFrom() { return currencyFrom; }
-//        String getCurrencyTo() { return currencyTo; }
-//        String getStringResult() { return stringResult; }
-//
-//        SharedData invoke() {
-//            try {
-//                doubleFrom = Double.valueOf(editTextInput.getText().toString());
-//            } catch (NumberFormatException e) {
-//                doubleFrom = 0;
-//            }
-//            currencyFrom = Utils.getSelectedCurrency(spinnerFrom);
-//            currencyTo = Utils.getSelectedCurrency(spinnerTo);
-//            double doubleResult = exchangeRateDatabase.convert(doubleFrom, currencyFrom, currencyTo);
-//            stringResult = Utils.getRoundNumber(doubleResult);
-//            return this;
-//        }
-//    }
 }

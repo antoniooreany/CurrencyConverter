@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         MenuItem shareItem = menu.findItem(R.id.action_share);
         shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem); //TODO shareActionProvider == null
         SharedData sharedData = new SharedData().invoke();
-        String textToShare = "Currency Converter says: "
+        String textToShare = "Currency Converter says: " // TODO Is it the right place to initialize textToShare ?
                 + sharedData.getDoubleFrom()
                 + " "
                 + sharedData.getCurrencyFrom()
