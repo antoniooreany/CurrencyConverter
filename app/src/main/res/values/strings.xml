@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">CurrencyConverter</string>
+    <string name="from_value_default">from value in</string>
+    <string name="to_value_default">to value in</string>
+    <string name="output_default">0.00</string>
+    <string name="button_calculate_default">Calculate</string>
+    <string name="edit_text_default">0</string>
+    <string name="output_text_default">0.00</string>
+</resources>
