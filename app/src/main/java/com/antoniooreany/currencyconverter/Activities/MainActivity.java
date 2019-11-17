@@ -30,8 +30,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.antoniooreany.currencyconverter.Currency.CurrencyElement;
 import com.antoniooreany.currencyconverter.Currency.CurrencyListAdapter;
 import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
-import com.antoniooreany.currencyconverter.Update.ExchangeRateUpdateRunnable;
 import com.antoniooreany.currencyconverter.R;
+import com.antoniooreany.currencyconverter.Update.ExchangeRateUpdateRunnable;
 import com.antoniooreany.currencyconverter.Update.UpdateJobService;
 import com.antoniooreany.currencyconverter.Utils;
 
@@ -48,15 +48,13 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
     private Spinner spinnerFrom;
     private Spinner spinnerTo;
     private ExchangeRateDatabase exchangeRateDatabase;
-//    private CurrencyListAdapter currencyListAdapter = new CurrencyListAdapter(Arrays.asList(exchangeRateDatabase.getMembers()));
     private CurrencyListAdapter currencyListAdapter = new CurrencyListAdapter(Utils.getCurrencyElementArrayList(this));
     private ShareActionProvider shareActionProvider;
-    private ExchangeRateUpdateRunnable runnable;
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             currencyListAdapter.notifyDataSetChanged();
-            Toast toast = Toast.makeText(MainActivity.this, "Currencies update finished!", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(MainActivity.this, "Currency update finished!", Toast.LENGTH_SHORT);
             toast.show();
             Log.d("receiver", "Got message: ");
         }
@@ -95,16 +93,14 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            registerService();
-        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) registerService();
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("Currencies were updated"));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu); //TODO not "menu", but "currencies_list" ?
+        getMenuInflater().inflate(R.menu.menu, menu);
         MenuItem shareItem = menu.findItem(R.id.action_share);
         shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
         setShareText(null);
@@ -114,12 +110,12 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.currencies_list: // TODO Or "menu" instead of "currencies_list"
+            case R.id.currencies_list:
                 Intent intent = new Intent(MainActivity.this, CurrencyListActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.refresh_rates: // TODO
-                runnable = new ExchangeRateUpdateRunnable(exchangeRateDatabase, this);
+            case R.id.refresh_rates:
+                ExchangeRateUpdateRunnable runnable = new ExchangeRateUpdateRunnable(exchangeRateDatabase, this);
                 new Thread(runnable).start();
                 return true;
             default:
@@ -133,24 +129,25 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         if (text != null) {
             shareIntent.putExtra(Intent.EXTRA_TEXT, text);
         }
-        shareActionProvider.setShareIntent(shareIntent); //TODO Throws NPE => shareActionProvider == null
+        shareActionProvider.setShareIntent(shareIntent);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
+        SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         SharedPreferences ShPref = getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
         SharedPreferences.Editor editorShared = ShPref.edit();
         String value = ((EditText) findViewById(R.id.editTextInput)).getText().toString();
-        int position1 = spinnerFrom.getSelectedItemPosition();
-        int position2 = spinnerTo.getSelectedItemPosition();
+        int spinnerFromSelectedItemPosition = spinnerFrom.getSelectedItemPosition();
+        int spinnerToSelectedItemPosition = spinnerTo.getSelectedItemPosition();
         editor.putString("Convert amount", value);
-        editor.putInt("Convert From", position1);
-        editor.putInt("Convert to", position2);
-        for (int i = 0; i < exchangeRateDatabase.getCurrencies().length; i++) {
-            editorShared.putString(exchangeRateDatabase.getCurrencies()[i], Double.toString(exchangeRateDatabase.getExchangeRate(exchangeRateDatabase.getCurrencies()[i])));
+        editor.putInt("Convert from", spinnerFromSelectedItemPosition);
+        editor.putInt("Convert to", spinnerToSelectedItemPosition);
+//        for (int i = 0; i < exchangeRateDatabase.getCurrencies().length; i++) {editorShared.putString(exchangeRateDatabase.getCurrencies()[i], Double.toString(exchangeRateDatabase.getExchangeRate(exchangeRateDatabase.getCurrencies()[i])));}
+        for (String currency : exchangeRateDatabase.getCurrencies()) {
+            editorShared.putString(currency, Double.toString(exchangeRateDatabase.getExchangeRate(currency)));
         }
         editor.apply();
         editorShared.apply();
@@ -159,18 +156,24 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences pref = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences ShPref = getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
-        String value = pref.getString("Convert amount", "");
-        int position1 = pref.getInt("Convert From", 0);
-        int position2 = pref.getInt("Convert to", 0);
-        ((EditText) findViewById(R.id.editTextInput)).setText(value);
-        spinnerFrom.setSelection(position1);
-        spinnerTo.setSelection(position2);
-        for (int i = 0; i < exchangeRateDatabase.getCurrencies().length; i++) {
-            double ShareExchangeRate = Double.parseDouble(Objects.requireNonNull(ShPref.getString(exchangeRateDatabase.getCurrencies()[i],
-                    Double.toString(exchangeRateDatabase.getExchangeRate(exchangeRateDatabase.getCurrencies()[i])))));
-            exchangeRateDatabase.setExchangeRate(exchangeRateDatabase.getCurrencies()[i], ShareExchangeRate);
+        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
+        String preferencesString = preferences.getString("Convert amount", "");
+        int convertFrom = preferences.getInt("Convert From", 0);
+        int convertTo = preferences.getInt("Convert to", 0);
+        ((EditText) findViewById(R.id.editTextInput)).setText(preferencesString);
+        spinnerFrom.setSelection(convertFrom);
+        spinnerTo.setSelection(convertTo);
+//        for (int i = 0; i < exchangeRateDatabase.getCurrencies().length; i++) {
+//            double ShareExchangeRate = Double.parseDouble(Objects.requireNonNull(sharedPreferences.getString(exchangeRateDatabase.getCurrencies()[i],
+//                    Double.toString(exchangeRateDatabase.getExchangeRate(exchangeRateDatabase.getCurrencies()[i])))));
+//            exchangeRateDatabase.setExchangeRate(exchangeRateDatabase.getCurrencies()[i], ShareExchangeRate);
+//        }
+
+        for (String currency : exchangeRateDatabase.getCurrencies()) {
+            double ShareExchangeRate = Double.parseDouble(Objects.requireNonNull(sharedPreferences.getString(currency,
+                    Double.toString(exchangeRateDatabase.getExchangeRate(currency)))));
+            exchangeRateDatabase.setExchangeRate(currency, ShareExchangeRate);
         }
 
     }
@@ -185,13 +188,12 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
     public void registerService() {
         ComponentName serviceName = new ComponentName(this, UpdateJobService.class);
         JobInfo jobInfo;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             jobInfo = new JobInfo.Builder(JOB_ID, serviceName).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setRequiresDeviceIdle(false).setRequiresCharging(false).setPersisted(true).setPeriodic(86400000).build();
-            JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            if (scheduler.getPendingJob(JOB_ID) == null) {
-                scheduler.schedule(jobInfo); //TODO No such service ComponentInfo{com.antoniooreany.currencyconverter/com.antoniooreany.currencyconverter.Update.UpdateJobService}
-            }
+//                    .setRequiresDeviceIdle(false).setRequiresCharging(false).setPersisted(true).setPeriodic(86400000).build();
+                    .setRequiresDeviceIdle(false).setRequiresCharging(false).setPersisted(true).setPeriodic(Utils.JOB_MIN_INTERVAL_MILLIS).build();
+            JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            if (jobScheduler.getPendingJob(JOB_ID) == null) { jobScheduler.schedule(jobInfo); }
         }
     }
 
@@ -228,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
             double doubleResult = exchangeRateDatabase.convert(doubleFrom, currencyFrom, currencyTo);
             stringResult = Utils.getRoundNumber(doubleResult);
 
-            String textToShare = "Currency Converter says: " // TODO Is it the right place to initialize textToShare ?
+            String textToShare = "Currency Converter says: "
                     + getDoubleFrom()
                     + " "
                     + getCurrencyFrom()
@@ -236,8 +238,7 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
                     + getStringResult()
                     + " "
                     + getCurrencyTo();
-            setShareText(textToShare);    //TODO When uncommented, the App falls down
-
+            setShareText(textToShare);
             return this;
         }
     }

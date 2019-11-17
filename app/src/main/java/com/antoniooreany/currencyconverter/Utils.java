@@ -7,11 +7,15 @@ import com.antoniooreany.currencyconverter.Currency.CurrencyElement;
 import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
 
 import java.util.ArrayList;
+
 import static java.lang.String.format;
 
 public class Utils {
     private static final String FORMAT_STRING = "%%.%df";
     private static final int PLACES_AFTER_DECIMAL_POINT = 2;
+    public static final int JOB_MIN_INTERVAL_MILLIS = 1000 * 60 * 60 * 24;
+
+//    public static int getJobMinIntervalMillis() { return JOB_MIN_INTERVAL_MILLIS; }
 
     public static String getRoundNumber(double doubleResult) {
         return format(format(FORMAT_STRING, PLACES_AFTER_DECIMAL_POINT), doubleResult);
@@ -35,9 +39,5 @@ public class Utils {
         //         TODO Try to simplify previous scope somehow like this:
 //        ArrayList<CurrencyElement> data = new ArrayList<>(Arrays.asList(new CurrencyElement(currenciesList)));
         return currencyElementArrayList;
-    }
-
-    public static void updateCurrencies() {
-
     }
 }

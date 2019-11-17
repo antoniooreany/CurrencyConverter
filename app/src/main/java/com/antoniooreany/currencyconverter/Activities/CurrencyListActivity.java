@@ -44,7 +44,7 @@ public class CurrencyListActivity extends AppCompatActivity implements ExchangeR
                 String currencyName = currencyNameTextView.getText().toString();
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0`?q="
                         + exchangeRateDatabase.getCapital(currencyName)));
-                startActivity(intent); //TODO Can't search
+                startActivity(intent);
             }
         });
     }

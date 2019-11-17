@@ -40,9 +40,6 @@ public class ExchangeRateDatabase {
             new ExchangeRate("THB", "Bangkok", 35.328),
             new ExchangeRate("ZAR", "Cape Town", 13.1446)
     };
-//    Currency Converter says: 0.0 AUD are 0.00 AUD
-//    Currency Converter says: 2424.0 AUD are 2424.00 AUD
-//    Currency Converter says: 2424.0 CAD are 7682.19 BRL
 
     private final static Map<String, ExchangeRate> CURRENCIES_MAP = new HashMap<>();
 
@@ -90,7 +87,7 @@ public class ExchangeRateDatabase {
     synchronized public void setExchangeRate(String currency, double exchangeRate){
         CURRENCIES_MAP.get(currency).setRateForOneEuro(exchangeRate);
     }
-    synchronized public ExchangeRate[] getMembers(){
-        return RATES;
-    }
+//    synchronized public ExchangeRate[] getMembers(){
+//        return RATES;
+//    }
 }
