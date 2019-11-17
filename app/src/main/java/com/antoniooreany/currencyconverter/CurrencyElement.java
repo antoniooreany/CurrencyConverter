@@ -1,6 +1,6 @@
-package com.antoniooreany.currencyconverter.Currency;
+package com.antoniooreany.currencyconverter;
 
-import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
+import com.antoniooreany.currencyconverter.ExchangeRateDatabase;
 
 public class CurrencyElement {
 

@@ -1,4 +1,4 @@
-package com.antoniooreany.currencyconverter.ExchangeRates;
+package com.antoniooreany.currencyconverter;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -84,7 +84,10 @@ public class ExchangeRateDatabase {
         return value / getExchangeRate(currencyFrom) * getExchangeRate(currencyTo);
     }
 
-    public void setExchangeRate() {
-
+    synchronized public void setExchangeRate(String currency, double exchangeRate){
+        CURRENCIES_MAP.get(currency).setRateForOneEuro(exchangeRate);
+    }
+    synchronized public ExchangeRate[] getMembers(){
+        return RATES;
     }
 }

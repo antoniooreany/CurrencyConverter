@@ -1,4 +1,4 @@
-package com.antoniooreany.currencyconverter.ExchangeRates;
+package com.antoniooreany.currencyconverter;
 
 public class ExchangeRate {
     private String currencyName;
@@ -17,5 +17,8 @@ public class ExchangeRate {
     public String getCapital() { return capital; }
     public double getRateForOneEuro() {
         return rateForOneEuro;
+    }
+    public void setRateForOneEuro(double rateForOneEuro){
+        this.rateForOneEuro = rateForOneEuro;
     }
 }

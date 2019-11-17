@@ -1,4 +1,4 @@
-package com.antoniooreany.currencyconverter.Activities;
+package com.antoniooreany.currencyconverter;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -9,12 +9,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.antoniooreany.currencyconverter.Currency.CurrencyElement;
-import com.antoniooreany.currencyconverter.Currency.CurrencyListAdapter;
-import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
-import com.antoniooreany.currencyconverter.R;
-import com.antoniooreany.currencyconverter.Utils;
 
 import java.util.ArrayList;
 

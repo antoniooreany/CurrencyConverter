@@ -1,4 +1,4 @@
-package com.antoniooreany.currencyconverter.Currency;
+package com.antoniooreany.currencyconverter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,9 +7,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.antoniooreany.currencyconverter.R;
-import com.antoniooreany.currencyconverter.Utils;
 
 import java.util.List;
 
