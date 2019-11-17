@@ -36,4 +36,9 @@ public class Utils {
 //        ArrayList<CurrencyElement> data = new ArrayList<>(Arrays.asList(new CurrencyElement(currenciesList)));
         return currencyElementArrayList;
     }
+
+    public static void updateCurrencies() {
+
+    }
+
 }

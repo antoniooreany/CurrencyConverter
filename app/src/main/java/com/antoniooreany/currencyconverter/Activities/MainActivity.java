@@ -9,11 +9,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.ShareActionProvider;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
+
 import com.antoniooreany.currencyconverter.Currency.CurrencyElement;
 import com.antoniooreany.currencyconverter.Currency.CurrencyListAdapter;
 import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
@@ -70,20 +72,10 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
+        getMenuInflater().inflate(R.menu.menu, menu); //TODO not "menu", but "currencies_list" ?
         MenuItem shareItem = menu.findItem(R.id.action_share);
-        shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem); //TODO shareActionProvider == null
-        SharedData sharedData = new SharedData().invoke();
-        String textToShare = "Currency Converter says: " // TODO Is it the right place to initialize textToShare ?
-                + sharedData.getDoubleFrom()
-                + " "
-                + sharedData.getCurrencyFrom()
-                + " are "
-                + sharedData.getStringResult()
-                + " "
-                + sharedData.getCurrencyTo();
-//        Log.i("log = ", textToShare);
-//        setShareText(textToShare);    //TODO When uncommented, the App falls down
+        shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+        setShareText(null);
         return true;
     }
 
@@ -99,9 +91,13 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu:
+            case R.id.currencies_list: // TODO Or "menu" instead of "currencies_list"
                 Intent intent = new Intent(MainActivity.this, CurrencyListActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.refresh_rates: // TODO
+//                Intent intent = new Intent(MainActivity.this, CurrencyListActivity.class);
+//                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -114,10 +110,21 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         private String currencyTo;
         private String stringResult;
 
-        double getDoubleFrom() { return doubleFrom; }
-        String getCurrencyFrom() { return currencyFrom; }
-        String getCurrencyTo() { return currencyTo; }
-        String getStringResult() { return stringResult; }
+        double getDoubleFrom() {
+            return doubleFrom;
+        }
+
+        String getCurrencyFrom() {
+            return currencyFrom;
+        }
+
+        String getCurrencyTo() {
+            return currencyTo;
+        }
+
+        String getStringResult() {
+            return stringResult;
+        }
 
         SharedData invoke() {
             try {
@@ -129,6 +136,17 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
             currencyTo = Utils.getSelectedCurrency(spinnerTo);
             double doubleResult = exchangeRateDatabase.convert(doubleFrom, currencyFrom, currencyTo);
             stringResult = Utils.getRoundNumber(doubleResult);
+
+            String textToShare = "Currency Converter says: " // TODO Is it the right place to initialize textToShare ?
+                    + getDoubleFrom()
+                    + " "
+                    + getCurrencyFrom()
+                    + " are "
+                    + getStringResult()
+                    + " "
+                    + getCurrencyTo();
+            setShareText(textToShare);    //TODO When uncommented, the App falls down
+
             return this;
         }
     }
