@@ -1,4 +1,4 @@
-package com.antoniooreany.currencyconverter;
+package com.antoniooreany.currencyconverter.Update;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
+
+import com.antoniooreany.currencyconverter.Activities.MainActivity;
 
 class UpdateNotifier {
     private static final int NOTIFICATION_ID = 123;

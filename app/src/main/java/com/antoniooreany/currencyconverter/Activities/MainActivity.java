@@ -1,4 +1,4 @@
-package com.antoniooreany.currencyconverter;
+package com.antoniooreany.currencyconverter.Activities;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -26,6 +26,14 @@ import androidx.appcompat.widget.ShareActionProvider;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.antoniooreany.currencyconverter.Currency.CurrencyElement;
+import com.antoniooreany.currencyconverter.Currency.CurrencyListAdapter;
+import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
+import com.antoniooreany.currencyconverter.Update.ExchangeRateUpdateRunnable;
+import com.antoniooreany.currencyconverter.R;
+import com.antoniooreany.currencyconverter.Update.UpdateJobService;
+import com.antoniooreany.currencyconverter.Utils;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -182,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
                     .setRequiresDeviceIdle(false).setRequiresCharging(false).setPersisted(true).setPeriodic(86400000).build();
             JobScheduler scheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
             if (scheduler.getPendingJob(JOB_ID) == null) {
-                scheduler.schedule(jobInfo); //TODO No such service ComponentInfo{com.antoniooreany.currencyconverter/com.antoniooreany.currencyconverter.UpdateJobService}
+                scheduler.schedule(jobInfo); //TODO No such service ComponentInfo{com.antoniooreany.currencyconverter/com.antoniooreany.currencyconverter.Update.UpdateJobService}
             }
         }
     }

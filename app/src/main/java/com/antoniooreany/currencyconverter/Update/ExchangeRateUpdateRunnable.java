@@ -1,10 +1,12 @@
-package com.antoniooreany.currencyconverter;
+package com.antoniooreany.currencyconverter.Update;
 
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;

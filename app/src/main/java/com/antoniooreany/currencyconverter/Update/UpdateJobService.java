@@ -1,4 +1,4 @@
-package com.antoniooreany.currencyconverter;
+package com.antoniooreany.currencyconverter.Update;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
@@ -11,6 +11,8 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;

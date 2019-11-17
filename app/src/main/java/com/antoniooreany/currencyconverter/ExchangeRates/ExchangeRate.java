@@ -1,4 +1,4 @@
-package com.antoniooreany.currencyconverter;
+package com.antoniooreany.currencyconverter.ExchangeRates;
 
 public class ExchangeRate {
     private String currencyName;

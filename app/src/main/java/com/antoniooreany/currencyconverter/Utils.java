@@ -2,6 +2,10 @@ package com.antoniooreany.currencyconverter;
 
 import android.widget.Spinner;
 
+import com.antoniooreany.currencyconverter.Activities.ExchangeRateDatabaseActivity;
+import com.antoniooreany.currencyconverter.Currency.CurrencyElement;
+import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
+
 import java.util.ArrayList;
 import static java.lang.String.format;
 
@@ -36,5 +40,4 @@ public class Utils {
     public static void updateCurrencies() {
 
     }
-
 }
