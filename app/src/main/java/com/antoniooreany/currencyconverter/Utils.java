@@ -67,8 +67,12 @@ public class Utils {
                         "Cube".equals(xmlPullParser.getName())
                         && xmlPullParser.getAttributeCount() == 2) {
                     try {
+//                        new ExchangeRateDatabase().setExchangeRate(xmlPullParser.getAttributeValue(null, "currency"),
                         a.getExchangeRateDatabase().setExchangeRate(xmlPullParser.getAttributeValue(null, "currency"),
                                 Double.parseDouble(xmlPullParser.getAttributeValue(null, "rate")));
+//                        Log.e("xmlPullParser.getAtt = ", xmlPullParser.getAttributeValue(null, "currency").toString());
+//                        Log.e("Double.parseDouble(x = ", String.valueOf(Double.parseDouble(xmlPullParser.getAttributeValue(null, "rate"))));
+
                     } catch (NumberFormatException e) {
                         Log.e("CurrencyConverter", "Entry doesn't exist");
                         e.printStackTrace();
@@ -77,7 +81,11 @@ public class Utils {
                 eventType = xmlPullParser.next();
             }
             inputStream.close();
-        } catch (Exception e) {    //TODO catch each exception independently
+        } catch (Exception e) {
+//            Log.e("a = ", a.toString());
+//            Log.e("a.getExchangeRa() = ", a.getExchangeRateDatabase().toString());
+//            Log.e("a = ", a.toString());
+            //TODO catch each exception independently
             Log.e("CurrencyConverter", "Cannot query ECB!");
             e.printStackTrace();
         }

@@ -86,8 +86,6 @@ public class ExchangeRateDatabase {
 
     synchronized public void setExchangeRate(String currency, double exchangeRate){
         CURRENCIES_MAP.get(currency).setRateForOneEuro(exchangeRate);
-    }
-//    synchronized public ExchangeRate[] getMembers(){
-//        return RATES;
-//    }
+    } //TODO Attempt to invoke virtual method 'void com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRate.setRateForOneEuro(double)' on a null object reference
+
 }
