@@ -52,7 +52,7 @@ public class CurrencyListAdapter extends BaseAdapter {
         TextView rateForOneEuroTextView = view.findViewById(R.id.rateForOneEuro);
         currencyNameTextView.setText(currencyElement.getCurrencyName());
         double rateForOneEuro = currencyElement.getRateForOneEuro();
-        String rateForOneEuroRoundedString = Utils.getRoundNumber(rateForOneEuro);
+        String rateForOneEuroRoundedString = Utils.getRoundedNumber(rateForOneEuro);
         rateForOneEuroTextView.setText(rateForOneEuroRoundedString);
         return view;
     }

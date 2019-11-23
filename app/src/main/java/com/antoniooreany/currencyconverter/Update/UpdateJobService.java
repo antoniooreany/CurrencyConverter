@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.antoniooreany.currencyconverter.ExchangeRates.ExchangeRateDatabase;
+import com.antoniooreany.currencyconverter.Utils;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -22,7 +23,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class UpdateJobService extends JobService {
+public class UpdateJobService extends JobService  {
 
     UpdateAsyncTask updateAsyncTask = new UpdateAsyncTask(this);
 
@@ -37,8 +38,9 @@ public class UpdateJobService extends JobService {
         return false;
     }
 
-    private static class UpdateAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> {
+    private static class UpdateAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> implements A {
         private final JobService jobService;
+        private ExchangeRateDatabase exchangeRateDatabase;
 
         public UpdateAsyncTask(JobService jobService) {
             this.jobService = jobService;
@@ -46,11 +48,11 @@ public class UpdateJobService extends JobService {
 
         @Override
         protected JobParameters doInBackground(JobParameters... jobParameters) {
-            UpdateNotifier updateNotifier = new UpdateNotifier(this.jobService);
-            ExchangeRateDatabase exchangeRateDatabase = new ExchangeRateDatabase();
-            String spec = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
+            exchangeRateDatabase = new ExchangeRateDatabase();
+
+            UpdateNotifier updateNotifier = new UpdateNotifier(jobService);
             try {
-                URL url = new URL(spec);
+                URL url = new URL(Utils.SPEC);
                 URLConnection urlConnection = url.openConnection();
                 InputStream inputStream = urlConnection.getInputStream();
                 XmlPullParser xmlPullParser = XmlPullParserFactory.newInstance().newPullParser();
@@ -72,19 +74,23 @@ public class UpdateJobService extends JobService {
                 }
                 inputStream.close();
             } catch (Exception e) {    //TODO catch each exception independently
-                Log.e("CurrencyConverter", "Can't query ECB!");
+                Log.e("CurrencyConverter", "Cannot query ECB!");
                 e.printStackTrace();
             }
 
+            updateNotifier.showNotification();
+
             SharedPreferences sharedPreferences = this.jobService.getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            for (int i = 0; i < exchangeRateDatabase.getCurrencies().length; i++) {
-                editor.putString(exchangeRateDatabase.getCurrencies()[i],
-                        Double.toString(exchangeRateDatabase.getExchangeRate(exchangeRateDatabase.getCurrencies()[i])));
+//            for (int i = 0; i < exchangeRateDatabase.getCurrencies().length; i++) {
+//                editor.putString(exchangeRateDatabase.getCurrencies()[i],
+//                        Double.toString(exchangeRateDatabase.getExchangeRate(exchangeRateDatabase.getCurrencies()[i])));
+//            }
+            for (String currency : exchangeRateDatabase.getCurrencies()) {
+                editor.putString(currency, Double.toString(exchangeRateDatabase.getExchangeRate(currency)));
             }
             editor.apply();
 
-            updateNotifier.showNotification();
             sendMessage();
             return jobParameters[0];
         }
@@ -98,6 +104,11 @@ public class UpdateJobService extends JobService {
         @Override
         protected void onPostExecute(JobParameters jobParameters) {
             jobService.jobFinished(jobParameters, false);
+        }
+
+        @Override
+        public ExchangeRateDatabase getExchangeRateDatabase() {
+            return exchangeRateDatabase;
         }
     }
 }

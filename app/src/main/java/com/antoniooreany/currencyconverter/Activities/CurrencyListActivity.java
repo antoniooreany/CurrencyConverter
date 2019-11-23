@@ -19,6 +19,7 @@ import com.antoniooreany.currencyconverter.Utils;
 import java.util.ArrayList;
 
 public class CurrencyListActivity extends AppCompatActivity implements ExchangeRateDatabaseActivity {
+    private static final String URI = "geo:0,0`?q=";
 
     private ExchangeRateDatabase exchangeRateDatabase;
 
@@ -42,8 +43,7 @@ public class CurrencyListActivity extends AppCompatActivity implements ExchangeR
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 TextView currencyNameTextView = view.findViewById(R.id.currencyName);
                 String currencyName = currencyNameTextView.getText().toString();
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0`?q="
-                        + exchangeRateDatabase.getCapital(currencyName)));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(URI + exchangeRateDatabase.getCapital(currencyName)));
                 startActivity(intent);
             }
         });

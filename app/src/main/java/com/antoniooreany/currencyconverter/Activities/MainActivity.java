@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
             currencyFrom = Utils.getSelectedCurrency(spinnerFrom);
             currencyTo = Utils.getSelectedCurrency(spinnerTo);
             double doubleResult = exchangeRateDatabase.convert(doubleFrom, currencyFrom, currencyTo);
-            stringResult = Utils.getRoundNumber(doubleResult);
+            stringResult = Utils.getRoundedNumber(doubleResult);
 
             String textToShare = "Currency Converter says: "
                     + getDoubleFrom()

@@ -10,7 +10,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.antoniooreany.currencyconverter.Activities.MainActivity;
 
-class UpdateNotifier {
+public class UpdateNotifier {
     private static final int NOTIFICATION_ID = 123;
     private static String CHANNEL_ID = "update_channel";
     private static String CHANNEL_DESCRIPTION = "Show update status";
