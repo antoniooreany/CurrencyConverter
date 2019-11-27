@@ -15,15 +15,16 @@ import com.antoniooreany.currencyconverter.Utils;
 
 public class UpdateAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> implements A {
     private final JobService jobService;
-    private ExchangeRateDatabase exchangeRateDatabase;
+    private ExchangeRateDatabase exchangeRateDatabase;  //TODO Here or ... ?
 
     public UpdateAsyncTask(JobService jobService) {
         this.jobService = jobService;
+        this.exchangeRateDatabase = new ExchangeRateDatabase();
     }
 
     @Override
     protected JobParameters doInBackground(JobParameters... jobParameters) {
-        exchangeRateDatabase = new ExchangeRateDatabase();
+//        exchangeRateDatabase = new ExchangeRateDatabase();  //TODO Here or ... ?
 
         Utils.update(jobService, this);
 

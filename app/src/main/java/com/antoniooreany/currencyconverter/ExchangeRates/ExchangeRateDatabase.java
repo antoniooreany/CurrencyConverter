@@ -21,9 +21,9 @@ public class ExchangeRateDatabase {
             new ExchangeRate("CHF", "Bern", 1.0439),
             new ExchangeRate("NOK", "Oslo", 8.6545),
             new ExchangeRate("HRK", "Zagreb", 7.6448),
-            new ExchangeRate("RUB", "Moscow", 62.5595),
-            new ExchangeRate("TRY", "Ankara", 2.8265),
-            new ExchangeRate("AUD", "Canberra", 1.4158),
+            new ExchangeRate("RUB", "Moscow", 62.5595), //in the file:62.5595
+            new ExchangeRate("TRY", "Ankara", 2.8265),  //in the app 1 euro = 70.39 rub (26.11.19) E/CurrencyConverter: Cannot query ECB!
+            new ExchangeRate("AUD", "Canberra", 1.4158), //in the site 1 euro = 70.5445 rub (26.11.19)
             new ExchangeRate("BRL", "Brasilia", 3.5616),
             new ExchangeRate("CAD", "Ottawa", 1.3709),
             new ExchangeRate("CNY", "Beijing", 6.7324),

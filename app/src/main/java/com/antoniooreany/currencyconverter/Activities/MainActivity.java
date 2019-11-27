@@ -35,11 +35,9 @@ import com.antoniooreany.currencyconverter.Update.ExchangeRateUpdateRunnable;
 import com.antoniooreany.currencyconverter.Update.UpdateJobService;
 import com.antoniooreany.currencyconverter.Utils;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Objects;
-
-//import android.widget.Toolbar;
-//import android.support.v7.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity implements ExchangeRateDatabaseActivity {
     private static final int JOB_ID = 101;
@@ -107,6 +105,15 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         return true;
     }
 
+    private void setShareText(String text) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        if (text != null) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+        }
+        shareActionProvider.setShareIntent(shareIntent);
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -123,14 +130,33 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         }
     }
 
-    private void setShareText(String text) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        if (text != null) {
-            shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+
+    public void onClick(View view) {    //TODO Do I need this method ?
+
+//        Spinner Spinner1 = (Spinner) findViewById(R.id.spinner1);
+//        Spinner Spinner2 = (Spinner) findViewById(R.id.spinner2);
+//        TextView textView = (TextView) findViewById(R.id.textView5);
+//        EditText editText = (EditText) findViewById(R.id.editText);
+        double exch;
+        if (editTextInput.getText().toString().matches("")) {
+            exch = 0.0;
+        } else {
+            exch = exchangeRateDatabase.convert(Double.parseDouble(editTextInput.getText().toString()), spinnerFrom.getSelectedItem().toString(), spinnerTo.getSelectedItem().toString());
         }
-        shareActionProvider.setShareIntent(shareIntent);
+        DecimalFormat df = new DecimalFormat("#.##");
+        String value = "" + df.format(exch);
+        textViewOutput.setText(value);
+        double money;
+        if (editTextInput.getText().toString().matches("")) {
+            money = 0.0;
+        } else {
+            money = Double.parseDouble(editTextInput.getText().toString());
+        }
+        setShareText("Currency Converter says: " + money + " " + spinnerFrom.getSelectedItem().toString() + " are " + value + " " + spinnerTo.getSelectedItem().toString());
+
     }
+
+
 
     @Override
     protected void onPause() {
@@ -145,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         editor.putString("Convert amount", value);
         editor.putInt("Convert from", spinnerFromSelectedItemPosition);
         editor.putInt("Convert to", spinnerToSelectedItemPosition);
-//        for (int i = 0; i < exchangeRateDatabase.getCurrencies().length; i++) {editorShared.putString(exchangeRateDatabase.getCurrencies()[i], Double.toString(exchangeRateDatabase.getExchangeRate(exchangeRateDatabase.getCurrencies()[i])));}
         for (String currency : exchangeRateDatabase.getCurrencies()) {
             editorShared.putString(currency, Double.toString(exchangeRateDatabase.getExchangeRate(currency)));
         }
@@ -164,11 +189,6 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         ((EditText) findViewById(R.id.editTextInput)).setText(preferencesString);
         spinnerFrom.setSelection(convertFrom);
         spinnerTo.setSelection(convertTo);
-//        for (int i = 0; i < exchangeRateDatabase.getCurrencies().length; i++) {
-//            double ShareExchangeRate = Double.parseDouble(Objects.requireNonNull(sharedPreferences.getString(exchangeRateDatabase.getCurrencies()[i],
-//                    Double.toString(exchangeRateDatabase.getExchangeRate(exchangeRateDatabase.getCurrencies()[i])))));
-//            exchangeRateDatabase.setExchangeRate(exchangeRateDatabase.getCurrencies()[i], ShareExchangeRate);
-//        }
 
         for (String currency : exchangeRateDatabase.getCurrencies()) {
             double ShareExchangeRate = Double.parseDouble(Objects.requireNonNull(sharedPreferences.getString(currency,
@@ -190,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         JobInfo jobInfo;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             jobInfo = new JobInfo.Builder(JOB_ID, serviceName).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-//                    .setRequiresDeviceIdle(false).setRequiresCharging(false).setPersisted(true).setPeriodic(86400000).build();
                     .setRequiresDeviceIdle(false).setRequiresCharging(false).setPersisted(true).setPeriodic(Utils.JOB_MIN_INTERVAL_MILLIS).build();
             JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
             if (jobScheduler.getPendingJob(JOB_ID) == null) { jobScheduler.schedule(jobInfo); }

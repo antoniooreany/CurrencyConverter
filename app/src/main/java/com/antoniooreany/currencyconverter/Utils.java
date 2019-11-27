@@ -21,13 +21,14 @@ import java.util.ArrayList;
 import static java.lang.String.format;
 
 public class Utils {
+    private static final String SPEC = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
     private static final String FORMAT_STRING = "%%.%df";
     private static final int PLACES_AFTER_DECIMAL_POINT = 2;
-    public static final int JOB_MIN_INTERVAL_MILLIS = 1000 * 60 * 60 * 24;
-    public static final String SPEC = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
-
-
-//    public static int getJobMinIntervalMillis() { return JOB_MIN_INTERVAL_MILLIS; }
+    private static final int HOURS_PER_DAY = 24;
+    private static final int MINUTES_PER_HOUR = 60;
+    private static final int SECONDS_PER_MINUTE = 60;
+    private static final int MILLIS_PER_SECOND = 1000;
+    public static final int JOB_MIN_INTERVAL_MILLIS = MILLIS_PER_SECOND * SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY;
 
     public static String getRoundedNumber(double doubleResult) {
         return format(format(FORMAT_STRING, PLACES_AFTER_DECIMAL_POINT), doubleResult);
