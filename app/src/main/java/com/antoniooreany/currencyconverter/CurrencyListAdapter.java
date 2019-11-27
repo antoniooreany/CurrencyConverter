@@ -12,20 +12,20 @@ import java.util.List;
 
 public class CurrencyListAdapter extends BaseAdapter {
 
-    private List<CurrencyElement> currencyElementList;
+    private List<ExchangeRate> exchangeRateList;
 
-    public CurrencyListAdapter(List<CurrencyElement> currencyElementList) {
-        this.currencyElementList = currencyElementList;
+    public CurrencyListAdapter(List<ExchangeRate> list) {
+        this.exchangeRateList = list;
     }
 
     @Override
     public int getCount() {
-        return currencyElementList.size();
+        return exchangeRateList.size();
     }
 
     @Override
-    public Object getItem(int position) {
-        return currencyElementList.get(position);
+    public String getItem(int position) {
+        return exchangeRateList.get(position).getCurrencyName();
     }
 
     @Override
@@ -36,21 +36,29 @@ public class CurrencyListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
         Context context = viewGroup.getContext();
-        CurrencyElement currencyElement = currencyElementList.get(position);
+
         if (view == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.currency_element_layout, null, false);
         }
-        int imageId = context.getResources().getIdentifier(
-                "flag_" + currencyElement.getCurrencyName().toLowerCase(), "drawable", context.getPackageName());
-        ImageView imageView = view.findViewById(R.id.flagId);
-        imageView.setImageResource(imageId);
-        TextView currencyNameTextView = view.findViewById(R.id.currencyName);
-        TextView rateForOneEuroTextView = view.findViewById(R.id.rateForOneEuro);
-        currencyNameTextView.setText(currencyElement.getCurrencyName());
-        double rateForOneEuro = currencyElement.getRateForOneEuro();
-        String rateForOneEuroRoundedString = Utils.getRoundNumber(rateForOneEuro);
-        rateForOneEuroTextView.setText(rateForOneEuroRoundedString);
+
+        ImageView image = (ImageView) view.findViewById(R.id.flagId);
+        String imageName = "flag_" + exchangeRateList.get(position).getCurrencyName().toLowerCase();
+        image.setImageResource(context.getResources().getIdentifier(imageName, "drawable", "com.antoniooreany.currencyconverter"));
+
+        TextView currencies = view.findViewById(R.id.currencyName);
+        currencies.setText(exchangeRateList.get(position).getCurrencyName());
+
+        TextView rates = view.findViewById(R.id.rateForOneEuro);
+        double buffer = exchangeRateList.get(position).getRateForOneEuro();
+        rates.setText("" + buffer);
+
+
         return view;
+
     }
+
 }
+
+
+

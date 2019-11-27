@@ -27,21 +27,21 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.MenuItemCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import java.util.ArrayList;
+import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Objects;
 
 //import android.widget.Toolbar;
 //import android.support.v7.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity implements ExchangeRateDatabaseActivity {
+public class MainActivity extends AppCompatActivity {
     private static final int JOB_ID = 101;
     private TextView textViewOutput;
     private EditText editTextInput;
     private Spinner spinnerFrom;
     private Spinner spinnerTo;
-    private ExchangeRateDatabase exchangeRateDatabase;
-//    private CurrencyListAdapter currencyListAdapter = new CurrencyListAdapter(Arrays.asList(exchangeRateDatabase.getMembers()));
-    private CurrencyListAdapter currencyListAdapter = new CurrencyListAdapter(Utils.getCurrencyElementArrayList(this));
+    private ExchangeRateDatabase exchangeRateDatabase = new ExchangeRateDatabase();
+    private CurrencyListAdapter currencyListAdapter = new CurrencyListAdapter(Arrays.asList(exchangeRateDatabase.getMembers()));
     private ShareActionProvider shareActionProvider;
     private ExchangeRateUpdateRunnable runnable;
     private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
@@ -72,26 +72,38 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         spinnerTo = findViewById(R.id.spinnerTo);
         Button buttonCalculate = findViewById(R.id.buttonCalculate);
 
-        ArrayList<CurrencyElement> currencyElementArrayList = Utils.getCurrencyElementArrayList(this);
-
-        CurrencyListAdapter currencyListAdapter = new CurrencyListAdapter(currencyElementArrayList);
         spinnerFrom.setAdapter(currencyListAdapter);
         spinnerTo.setAdapter(currencyListAdapter);
-
-        buttonCalculate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SharedData sharedData = new SharedData().invoke();
-                String stringResult = sharedData.getStringResult();
-                textViewOutput.setText(stringResult);
-            }
-        });
-
+//        android.support.v7.widget.Toolbar myToolbar = findViewById(R.id.my_toolbar);
+//        setSupportActionBar(myToolbar);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             registerService();
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
                 new IntentFilter("Currencies were updated"));
+
+
+//
+//        ArrayList<CurrencyElement> currencyElementArrayList = Utils.getCurrencyElementArrayList(this);
+//
+//        CurrencyListAdapter currencyListAdapter = new CurrencyListAdapter(currencyElementArrayList);
+//        spinnerFrom.setAdapter(currencyListAdapter);
+//        spinnerTo.setAdapter(currencyListAdapter);
+//
+//        buttonCalculate.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                SharedData sharedData = new SharedData().invoke();
+//                String stringResult = sharedData.getStringResult();
+//                textViewOutput.setText(stringResult);
+//            }
+//        });
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//            registerService();
+//        }
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+//                new IntentFilter("Currencies were updated"));
     }
 
     @Override
@@ -101,6 +113,15 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
         setShareText(null);
         return true;
+    }
+
+    private void setShareText(String text) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        if (text != null) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+        }
+        shareActionProvider.setShareIntent(shareIntent); //TODO Throws NPE => shareActionProvider == null
     }
 
     @Override
@@ -119,14 +140,38 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         }
     }
 
-    private void setShareText(String text) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        if (text != null) {
-            shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+
+    public void onClick(View view) {
+
+//        Spinner Spinner1 = (Spinner) findViewById(R.id.spinner1);
+//        Spinner Spinner2 = (Spinner) findViewById(R.id.spinner2);
+//        TextView textView = (TextView) findViewById(R.id.textView5);
+//        EditText editText = (EditText) findViewById(R.id.editText);
+        double exch;
+        if (editTextInput.getText().toString().matches("")) {
+            exch = 0.0;
+        } else {
+            exch = exchangeRateDatabase.convert(Double.parseDouble(editTextInput.getText().toString()), spinnerFrom.getSelectedItem().toString(), spinnerTo.getSelectedItem().toString());
         }
-        shareActionProvider.setShareIntent(shareIntent); //TODO Throws NPE => shareActionProvider == null
+        DecimalFormat df = new DecimalFormat("#.##");
+        String value = "" + df.format(exch);
+        textViewOutput.setText(value);
+        double money;
+        if (editTextInput.getText().toString().matches("")) {
+            money = 0.0;
+        } else {
+            money = Double.parseDouble(editTextInput.getText().toString());
+        }
+        setShareText("Currency Converter says: " + money + " " + spinnerFrom.getSelectedItem().toString() + " are " + value + " " + spinnerTo.getSelectedItem().toString());
+
     }
+
+
+    public void GoToAnotherActivity(View v) {
+        Intent myIntent = new Intent(MainActivity.this, CurrencyListActivity.class);
+        startActivity(myIntent);
+    }
+
 
     @Override
     protected void onPause() {
@@ -187,50 +232,50 @@ public class MainActivity extends AppCompatActivity implements ExchangeRateDatab
         }
     }
 
-    private class SharedData {
-        private double doubleFrom;
-        private String currencyFrom;
-        private String currencyTo;
-        private String stringResult;
-
-        double getDoubleFrom() {
-            return doubleFrom;
-        }
-
-        String getCurrencyFrom() {
-            return currencyFrom;
-        }
-
-        String getCurrencyTo() {
-            return currencyTo;
-        }
-
-        String getStringResult() {
-            return stringResult;
-        }
-
-        SharedData invoke() {
-            try {
-                doubleFrom = Double.valueOf(editTextInput.getText().toString());
-            } catch (NumberFormatException e) {
-                doubleFrom = 0;
-            }
-            currencyFrom = Utils.getSelectedCurrency(spinnerFrom);
-            currencyTo = Utils.getSelectedCurrency(spinnerTo);
-            double doubleResult = exchangeRateDatabase.convert(doubleFrom, currencyFrom, currencyTo);
-            stringResult = Utils.getRoundNumber(doubleResult);
-
-            String textToShare = "Currency Converter says: " // TODO Is it the right place to initialize textToShare ?
-                    + getDoubleFrom()
-                    + " "
-                    + getCurrencyFrom()
-                    + " are "
-                    + getStringResult()
-                    + " "
-                    + getCurrencyTo();
-            setShareText(textToShare);    //TODO When uncommented, the App falls down
-
-            return this;
-        }
-    }
+//    private class SharedData {
+//        private double doubleFrom;
+//        private String currencyFrom;
+//        private String currencyTo;
+//        private String stringResult;
+//
+//        double getDoubleFrom() {
+//            return doubleFrom;
+//        }
+//
+//        String getCurrencyFrom() {
+//            return currencyFrom;
+//        }
+//
+//        String getCurrencyTo() {
+//            return currencyTo;
+//        }
+//
+//        String getStringResult() {
+//            return stringResult;
+//        }
+//
+//        SharedData invoke() {
+//            try {
+//                doubleFrom = Double.valueOf(editTextInput.getText().toString());
+//            } catch (NumberFormatException e) {
+//                doubleFrom = 0;
+//            }
+//            currencyFrom = Utils.getSelectedCurrency(spinnerFrom);
+//            currencyTo = Utils.getSelectedCurrency(spinnerTo);
+//            double doubleResult = exchangeRateDatabase.convert(doubleFrom, currencyFrom, currencyTo);
+//            stringResult = Utils.getRoundNumber(doubleResult);
+//
+//            String textToShare = "Currency Converter says: " // TODO Is it the right place to initialize textToShare ?
+//                    + getDoubleFrom()
+//                    + " "
+//                    + getCurrencyFrom()
+//                    + " are "
+//                    + getStringResult()
+//                    + " "
+//                    + getCurrencyTo();
+//            setShareText(textToShare);    //TODO When uncommented, the App falls down
+//
+//            return this;
+//        }
+//    }
 }
