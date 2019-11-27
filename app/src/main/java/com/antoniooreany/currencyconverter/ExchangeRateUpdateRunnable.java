@@ -14,12 +14,13 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class ExchangeRateUpdateRunnable implements Runnable {
-    private ExchangeRateDatabase data;
-    private Context ctx;
+    private static final String QUERY_STRING = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
+    private ExchangeRateDatabase exchangeRateDatabase;
+    private Context context;
 
-    public ExchangeRateUpdateRunnable(ExchangeRateDatabase data, Context ctx) {
-        this.data = data;
-        this.ctx = ctx;
+    public ExchangeRateUpdateRunnable(ExchangeRateDatabase exchangeRateDatabase, Context context) {
+        this.exchangeRateDatabase = exchangeRateDatabase;
+        this.context = context;
     }
 
     /**
@@ -42,31 +43,31 @@ public class ExchangeRateUpdateRunnable implements Runnable {
     }
 
     synchronized private void updateCurrencies() {
-        UpdateNotifier updateNotifier = new UpdateNotifier(ctx);
-        String queryString = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
-        try{
-            URL url  = new URL(queryString);
+        UpdateNotifier updateNotifier = new UpdateNotifier(context);
+        try {
+            URL url = new URL(QUERY_STRING);
             URLConnection urlConnection = url.openConnection();
-            InputStream is = urlConnection.getInputStream();
-            XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
-            parser.setInput(is, urlConnection.getContentEncoding());
-            int eventType = parser.getEventType();
-            while(eventType != XmlPullParser.END_DOCUMENT){
-                if(eventType == XmlPullParser.START_TAG &&
-                        "Cube".equals(parser.getName())
-                        && parser.getAttributeCount()==2) {
+            InputStream inputStream = urlConnection.getInputStream();
+            XmlPullParser xmlPullParser = XmlPullParserFactory.newInstance().newPullParser();
+            xmlPullParser.setInput(inputStream, urlConnection.getContentEncoding());
+            int eventType = xmlPullParser.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+                if (eventType == XmlPullParser.START_TAG &&
+                        "Cube".equals(xmlPullParser.getName())
+                        && xmlPullParser.getAttributeCount() == 2) {
                     try {
-                        data.setExchangeRate(parser.getAttributeValue(null, "currency"), Double.parseDouble(parser.getAttributeValue(null, "rate")));
-                    }catch (Exception ex){
+                        exchangeRateDatabase.setExchangeRate(xmlPullParser.getAttributeValue(null, "currency"),
+                                Double.parseDouble(xmlPullParser.getAttributeValue(null, "rate")));
+                    } catch (Exception e) {
                         Log.e("CurrencyConverter", "Entry doesn't exist");
-                        ex.printStackTrace();
+                        e.printStackTrace();
                     }
                 }
-                eventType = parser.next();
+                eventType = xmlPullParser.next();
             }
-        }catch (Exception ex){
+        } catch (Exception e) {
             Log.e("CurrencyConverter", "Can't query ECB!");
-            ex.printStackTrace();
+            e.printStackTrace();
         }
         updateNotifier.showNotification();
     }
@@ -74,8 +75,6 @@ public class ExchangeRateUpdateRunnable implements Runnable {
     private void sendMessage() {
         Log.d("sender", "Broadcasting message");
         Intent intent = new Intent("Currencies were updated");
-        LocalBroadcastManager.getInstance(ctx).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
-
-
 }

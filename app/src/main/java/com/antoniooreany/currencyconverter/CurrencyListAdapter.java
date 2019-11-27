@@ -42,17 +42,16 @@ public class CurrencyListAdapter extends BaseAdapter {
             view = inflater.inflate(R.layout.currency_element_layout, null, false);
         }
 
-        ImageView image = (ImageView) view.findViewById(R.id.flagId);
-        String imageName = "flag_" + exchangeRateList.get(position).getCurrencyName().toLowerCase();
-        image.setImageResource(context.getResources().getIdentifier(imageName, "drawable", "com.antoniooreany.currencyconverter"));
+        ImageView imageViewFlagId = view.findViewById(R.id.flagId);
+        String imageFlagName = "flag_" + exchangeRateList.get(position).getCurrencyName().toLowerCase();
+        imageViewFlagId.setImageResource(context.getResources().getIdentifier(imageFlagName, "drawable", "com.antoniooreany.currencyconverter"));
 
-        TextView currencies = view.findViewById(R.id.currencyName);
-        currencies.setText(exchangeRateList.get(position).getCurrencyName());
+        TextView textViewCurrencyName = view.findViewById(R.id.currencyName);
+        textViewCurrencyName.setText(exchangeRateList.get(position).getCurrencyName());
 
-        TextView rates = view.findViewById(R.id.rateForOneEuro);
-        double buffer = exchangeRateList.get(position).getRateForOneEuro();
-        rates.setText("" + buffer);
-
+        TextView textViewRateForOneEuro = view.findViewById(R.id.rateForOneEuro);
+        double rateForOneEuro = exchangeRateList.get(position).getRateForOneEuro();
+        textViewRateForOneEuro.setText(String.valueOf(rateForOneEuro));
 
         return view;
 

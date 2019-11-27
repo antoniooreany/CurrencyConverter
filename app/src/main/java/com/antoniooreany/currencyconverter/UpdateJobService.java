@@ -36,48 +36,47 @@ public class UpdateJobService extends JobService {
     }
 
     private static class UpdateAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> {
+        private static final String QUERY_STRING = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
         private final JobService jobService;
 
-        public UpdateAsyncTask(JobService service){
-            this.jobService = service;
+        public UpdateAsyncTask(JobService jobService) {
+            this.jobService = jobService;
         }
-
 
         @Override
         protected JobParameters doInBackground(JobParameters... jobParameters) {
             UpdateNotifier updateNotifier = new UpdateNotifier(this.jobService);
-            ExchangeRateDatabase data = new ExchangeRateDatabase();
-            String queryString = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
-            try{
-                URL url  = new URL(queryString);
+            ExchangeRateDatabase exchangeRateDatabase = new ExchangeRateDatabase();
+            try {
+                URL url = new URL(QUERY_STRING);
                 URLConnection urlConnection = url.openConnection();
-                InputStream is = urlConnection.getInputStream();
-                XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
-                parser.setInput(is, urlConnection.getContentEncoding());
-                int eventType = parser.getEventType();
-                while(eventType != XmlPullParser.END_DOCUMENT){
-                    if(eventType == XmlPullParser.START_TAG &&
-                            "Cube".equals(parser.getName())
-                            && parser.getAttributeCount()==2) {
+                InputStream inputStream = urlConnection.getInputStream();
+                XmlPullParser xmlPullParser = XmlPullParserFactory.newInstance().newPullParser();
+                xmlPullParser.setInput(inputStream, urlConnection.getContentEncoding());
+                int eventType = xmlPullParser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (eventType == XmlPullParser.START_TAG &&
+                            "Cube".equals(xmlPullParser.getName())
+                            && xmlPullParser.getAttributeCount() == 2) {
                         try {
-                            data.setExchangeRate(parser.getAttributeValue(null, "currency"), Double.parseDouble(parser.getAttributeValue(null, "rate")));
-                        }catch (Exception ex){
+                            exchangeRateDatabase.setExchangeRate(xmlPullParser.getAttributeValue(null, "currency"), Double.parseDouble(xmlPullParser.getAttributeValue(null, "rate")));
+                        } catch (Exception e) {
                             Log.e("CurrencyConverter", "Entry doesn't exist");
-                            ex.printStackTrace();
+                            e.printStackTrace();
                         }
                     }
-                    eventType = parser.next();
+                    eventType = xmlPullParser.next();
                 }
-            }catch (Exception ex){
+            } catch (Exception e) {
                 Log.e("CurrencyConverter", "Can't query ECB!");
-                ex.printStackTrace();
+                e.printStackTrace();
             }
-            SharedPreferences ShPref = this.jobService.getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = ShPref.edit();
-            for (int i = 0; i < data.getCurrencies().length; i++) {
-                editor.putString(data.getCurrencies()[i], Double.toString(data.getExchangeRate(data.getCurrencies()[i])));
-            }editor.apply();
-
+            SharedPreferences sharedPreferences = jobService.getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            for (String currency : exchangeRateDatabase.getCurrencies()) {
+                editor.putString(currency, Double.toString(exchangeRateDatabase.getExchangeRate(currency)));
+            }
+            editor.apply();
             updateNotifier.showNotification();
             sendMessage();
             return jobParameters[0];
@@ -90,8 +89,8 @@ public class UpdateJobService extends JobService {
         }
 
         @Override
-        protected void onPostExecute(JobParameters jobParameters){
-            jobService.jobFinished(jobParameters,false);
+        protected void onPostExecute(JobParameters jobParameters) {
+            jobService.jobFinished(jobParameters, false);
         }
     }
 }

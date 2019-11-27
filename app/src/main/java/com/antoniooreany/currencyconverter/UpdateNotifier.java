@@ -10,8 +10,8 @@ import androidx.core.app.NotificationCompat;
 
 class UpdateNotifier {
     private static final int NOTIFICATION_ID = 123;
-    private static String CHANNEL_ID = "update_channel";
-    private static String CHANNEL_DESCRIPTION = "Show update status";
+    private static final String CHANNEL_ID = "update_channel";
+    private static final String CHANNEL_DESCRIPTION = "Show update status";
     NotificationCompat.Builder notificationBuilder;
     NotificationManager notificationManager;
     Context context;
@@ -19,7 +19,7 @@ class UpdateNotifier {
     public UpdateNotifier(Context context) {
         this.context = context;
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationChannel notificationChannel = null;
+        NotificationChannel notificationChannel;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             notificationChannel = notificationManager.getNotificationChannel("update_channel");
 
@@ -28,12 +28,16 @@ class UpdateNotifier {
                 notificationManager.createNotificationChannel(notificationChannel);
             }
         }
-        notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID).setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                .setContentTitle("Currencies update...").setContentText("Currencies update in running").setAutoCancel(false);
-        Intent resultIntent = new Intent(context, MainActivity.class);
-        resultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent, 0);
-        notificationBuilder.setContentIntent(resultPendingIntent);
+        notificationBuilder = new NotificationCompat
+                .Builder(context, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+                .setContentTitle("Currencies update...")
+                .setContentText("Currencies update in running")
+                .setAutoCancel(false);
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+        notificationBuilder.setContentIntent(pendingIntent);
 
 
     }
