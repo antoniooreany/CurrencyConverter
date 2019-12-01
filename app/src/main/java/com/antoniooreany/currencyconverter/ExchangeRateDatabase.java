@@ -1,5 +1,7 @@
 package com.antoniooreany.currencyconverter;
 
+import android.util.Log;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +87,11 @@ public class ExchangeRateDatabase {
     }
 
     synchronized public void setExchangeRate(String currency, double exchangeRate){
-        CURRENCIES_MAP.get(currency).setRateForOneEuro(exchangeRate);
+        try {
+            CURRENCIES_MAP.get(currency).setRateForOneEuro(exchangeRate);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     synchronized public ExchangeRate[] getMembers(){
         return RATES;

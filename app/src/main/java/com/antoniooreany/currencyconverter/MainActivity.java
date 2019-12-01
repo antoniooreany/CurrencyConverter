@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume() { //TODO here is a problem
         super.onResume();
         SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences sharedPreferences = getSharedPreferences(UPDATED_CURRENCIES, Context.MODE_PRIVATE);
@@ -170,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
                     Double.toString(exchangeRateDatabase.getExchangeRate(currency)))));
             exchangeRateDatabase.setExchangeRate(currency, ShareExchangeRate);
         }
-
     }
 
     @Override

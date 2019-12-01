@@ -35,63 +35,63 @@ public class UpdateJobService extends JobService {
         return false;
     }
 
-    private static class UpdateAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> {
-        private static final String QUERY_STRING = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
-        private final JobService jobService;
-
-        public UpdateAsyncTask(JobService jobService) {
-            this.jobService = jobService;
-        }
-
-        @Override
-        protected JobParameters doInBackground(JobParameters... jobParameters) {
-            UpdateNotifier updateNotifier = new UpdateNotifier(this.jobService);
-            ExchangeRateDatabase exchangeRateDatabase = new ExchangeRateDatabase();
-            try {
-                URL url = new URL(QUERY_STRING);
-                URLConnection urlConnection = url.openConnection();
-                InputStream inputStream = urlConnection.getInputStream();
-                XmlPullParser xmlPullParser = XmlPullParserFactory.newInstance().newPullParser();
-                xmlPullParser.setInput(inputStream, urlConnection.getContentEncoding());
-                int eventType = xmlPullParser.getEventType();
-                while (eventType != XmlPullParser.END_DOCUMENT) {
-                    if (eventType == XmlPullParser.START_TAG &&
-                            "Cube".equals(xmlPullParser.getName())
-                            && xmlPullParser.getAttributeCount() == 2) {
-                        try {
-                            exchangeRateDatabase.setExchangeRate(xmlPullParser.getAttributeValue(null, "currency"), Double.parseDouble(xmlPullParser.getAttributeValue(null, "rate")));
-                        } catch (Exception e) {
-                            Log.e("CurrencyConverter", "Entry doesn't exist");
-                            e.printStackTrace();
-                        }
-                    }
-                    eventType = xmlPullParser.next();
-                }
-            } catch (Exception e) {
-                Log.e("CurrencyConverter", "Can't query ECB!");
-                e.printStackTrace();
-            }
-            SharedPreferences sharedPreferences = jobService.getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            for (String currency : exchangeRateDatabase.getCurrencies()) {
-                editor.putString(currency, Double.toString(exchangeRateDatabase.getExchangeRate(currency)));
-            }
-            editor.apply();
-            updateNotifier.showNotification();
-            sendMessage();
-            return jobParameters[0];
-        }
-
-        private void sendMessage() {
-            Log.d("sender", "Broadcasting message");
-            Intent intent = new Intent("Currencies were updated");
-            LocalBroadcastManager.getInstance(this.jobService).sendBroadcast(intent);
-        }
-
-        @Override
-        protected void onPostExecute(JobParameters jobParameters) {
-            jobService.jobFinished(jobParameters, false);
-        }
-    }
+//    private static class UpdateAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> {
+//        private static final String QUERY_STRING = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
+//        private final JobService jobService;
+//
+//        public UpdateAsyncTask(JobService jobService) {
+//            this.jobService = jobService;
+//        }
+//
+//        @Override
+//        protected JobParameters doInBackground(JobParameters... jobParameters) {
+//            UpdateNotifier updateNotifier = new UpdateNotifier(this.jobService);
+//            ExchangeRateDatabase exchangeRateDatabase = new ExchangeRateDatabase();
+//            try {
+//                URL url = new URL(QUERY_STRING);
+//                URLConnection urlConnection = url.openConnection();
+//                InputStream inputStream = urlConnection.getInputStream();
+//                XmlPullParser xmlPullParser = XmlPullParserFactory.newInstance().newPullParser();
+//                xmlPullParser.setInput(inputStream, urlConnection.getContentEncoding());
+//                int eventType = xmlPullParser.getEventType();
+//                while (eventType != XmlPullParser.END_DOCUMENT) {
+//                    if (eventType == XmlPullParser.START_TAG &&
+//                            "Cube".equals(xmlPullParser.getName())
+//                            && xmlPullParser.getAttributeCount() == 2) {
+//                        try {
+//                            exchangeRateDatabase.setExchangeRate(xmlPullParser.getAttributeValue(null, "currency"), Double.parseDouble(xmlPullParser.getAttributeValue(null, "rate")));
+//                        } catch (Exception e) {
+//                            Log.e("CurrencyConverter", "Entry doesn't exist");
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    eventType = xmlPullParser.next();
+//                }
+//            } catch (Exception e) {
+//                Log.e("CurrencyConverter", "Can't query ECB!");
+//                e.printStackTrace();
+//            }
+//            SharedPreferences sharedPreferences = jobService.getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            for (String currency : exchangeRateDatabase.getCurrencies()) {
+//                editor.putString(currency, Double.toString(exchangeRateDatabase.getExchangeRate(currency)));
+//            }
+//            editor.apply();
+//            updateNotifier.showNotification();
+//            sendMessage();
+//            return jobParameters[0];
+//        }
+//
+//        private void sendMessage() {
+//            Log.d("sender", "Broadcasting message");
+//            Intent intent = new Intent("Currencies were updated");
+//            LocalBroadcastManager.getInstance(this.jobService).sendBroadcast(intent);
+//        }
+//
+//        @Override
+//        protected void onPostExecute(JobParameters jobParameters) {
+//            jobService.jobFinished(jobParameters, false);
+//        }
+//    }
 }
 

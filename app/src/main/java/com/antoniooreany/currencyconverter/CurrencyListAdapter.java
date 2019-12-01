@@ -54,9 +54,7 @@ public class CurrencyListAdapter extends BaseAdapter {
         textViewRateForOneEuro.setText(String.valueOf(rateForOneEuro));
 
         return view;
-
     }
-
 }
 
 

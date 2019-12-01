@@ -12,12 +12,10 @@ class UpdateNotifier {
     private static final int NOTIFICATION_ID = 123;
     private static final String CHANNEL_ID = "update_channel";
     private static final String CHANNEL_DESCRIPTION = "Show update status";
-    NotificationCompat.Builder notificationBuilder;
-    NotificationManager notificationManager;
-    Context context;
+    private NotificationCompat.Builder notificationBuilder;
+    private NotificationManager notificationManager;
 
     public UpdateNotifier(Context context) {
-        this.context = context;
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel notificationChannel;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

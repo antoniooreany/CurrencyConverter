@@ -1,7 +1,11 @@
 package com.antoniooreany.currencyconverter;
 
+import android.app.job.JobParameters;
+import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -13,37 +17,18 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class ExchangeRateUpdateRunnable implements Runnable {
+public class UpdateAsyncTask extends AsyncTask<JobParameters, Void, JobParameters> {
     private static final String QUERY_STRING = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
-    private ExchangeRateDatabase exchangeRateDatabase;
-    private Context context;
+    private final JobService jobService;
 
-    public ExchangeRateUpdateRunnable(ExchangeRateDatabase exchangeRateDatabase, Context context) {
-        this.exchangeRateDatabase = exchangeRateDatabase;
-        this.context = context;
+    public UpdateAsyncTask(JobService jobService) {
+        this.jobService = jobService;
     }
 
-    /**
-     * When an object implementing interface <code>Runnable</code> is used
-     * to create a thread, starting the thread causes the object's
-     * <code>run</code> method to be called in that separately executing
-     * thread.
-     * <p>
-     * The general contract of the method <code>run</code> is that it may
-     * take any action whatsoever.
-     *
-     * @see Thread#run()
-     */
     @Override
-    public void run() {
-        synchronized (ExchangeRateUpdateRunnable.this) {
-            updateCurrencies();
-            sendMessage();
-        }
-    }
-
-    synchronized private void updateCurrencies() {
-        UpdateNotifier updateNotifier = new UpdateNotifier(context);
+    protected JobParameters doInBackground(JobParameters... jobParameters) {
+        UpdateNotifier updateNotifier = new UpdateNotifier(this.jobService);
+        ExchangeRateDatabase exchangeRateDatabase = new ExchangeRateDatabase();
         try {
             URL url = new URL(QUERY_STRING);
             URLConnection urlConnection = url.openConnection();
@@ -56,12 +41,10 @@ public class ExchangeRateUpdateRunnable implements Runnable {
                         "Cube".equals(xmlPullParser.getName())
                         && xmlPullParser.getAttributeCount() == 2) {
                     try {
-                        exchangeRateDatabase.setExchangeRate(xmlPullParser.getAttributeValue(null, "currency"),
-                                Double.parseDouble(xmlPullParser.getAttributeValue(null, "rate")));
-                    } catch (NumberFormatException nfe) {
+                        exchangeRateDatabase.setExchangeRate(xmlPullParser.getAttributeValue(null, "currency"), Double.parseDouble(xmlPullParser.getAttributeValue(null, "rate")));
+                    } catch (Exception nfe) {
                         Log.e("CurrencyConverter", "Entry doesn't exist");
                         nfe.printStackTrace();
-                        Log.d("***************",xmlPullParser.getAttributeValue(null, "currency"));
                     }
                 }
                 eventType = xmlPullParser.next();
@@ -70,12 +53,25 @@ public class ExchangeRateUpdateRunnable implements Runnable {
             Log.e("CurrencyConverter", "Can't query ECB!");
             e.printStackTrace();
         }
+        SharedPreferences sharedPreferences = jobService.getSharedPreferences("Updated Currencies", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        for (String currency : exchangeRateDatabase.getCurrencies()) {
+            editor.putString(currency, Double.toString(exchangeRateDatabase.getExchangeRate(currency)));
+        }
+        editor.apply();
         updateNotifier.showNotification();
+        sendMessage();
+        return jobParameters[0];
     }
 
     private void sendMessage() {
         Log.d("sender", "Broadcasting message");
         Intent intent = new Intent("Currencies were updated");
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(this.jobService).sendBroadcast(intent);
+    }
+
+    @Override
+    protected void onPostExecute(JobParameters jobParameters) {
+        jobService.jobFinished(jobParameters, false);
     }
 }
